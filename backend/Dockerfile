@@ -2,10 +2,10 @@
 FROM python:3.11-slim-bookworm
 
 # Dependencias de sistema para OpenMP, CatBoost, matplotlib/reportlab
+# libgthread-2.0-0 ya no existe en Bookworm; viene incluido en libglib2.0-0
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     libglib2.0-0 \
-    libgthread-2.0-0 \
     libfreetype6 \
     libpng16-16 \
     fonts-dejavu-core \
