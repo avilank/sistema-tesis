@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { apiGet, apiPost, fetchFigureBlob } from "@/lib/api";
+import type { TrainJobStatus } from "@/types/train";
+import { apiGet, apiPost, fetchFigureBlob, pollTrainStatus } from "@/lib/api";
 import { getCachedFigure, setCachedFigure } from "@/lib/figure-cache";
 import type { Eda } from "@/types/eda";
 import type { Metrics } from "@/types/metrics";
@@ -35,6 +36,30 @@ async function loadFigure(name: string): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+const TRAIN_STEP_KEYS = [
+  "preparing_data",
+  "cross_validation",
+  "hyperparameter_tuning",
+  "statistical_tests",
+  "generating_reports",
+  "done",
+] as const;
+
+function formatTrainStep(
+  step: string,
+  progress: number,
+  t: ReturnType<typeof useTranslations>,
+): string {
+  if (step.startsWith("training_model:")) {
+    const model = step.slice("training_model:".length);
+    return t("trainingStepModel", { model, progress });
+  }
+  if ((TRAIN_STEP_KEYS as readonly string[]).includes(step)) {
+    return t(`trainingStep.${step}` as "trainingStep.preparing_data", { progress });
+  }
+  return t("trainingPolling", { progress });
 }
 
 export function useMlData() {
@@ -76,9 +101,50 @@ export function useMlData() {
     return r.items;
   }, []);
 
+  const finishAfterTrain = useCallback(async () => {
+    const m = await apiGet<Metrics>("/api/metrics");
+    setMetrics(m);
+    const e = await apiGet<Eda>("/api/eda");
+    setEda(e);
+    await loadFigures(e, m);
+    await loadRanking(12);
+    setMsg(t("trainingDone", { model: m.best_model }));
+    return m;
+  }, [loadFigures, loadRanking, t]);
+
+  const waitForTrain = useCallback(async () => {
+    const finalStatus = await pollTrainStatus<TrainJobStatus>((status) => {
+      if (status.status === "running") {
+        setMsg(formatTrainStep(status.step || "preparing_data", status.progress, t));
+      }
+    });
+    if (finalStatus.status === "failed") {
+      throw new Error(finalStatus.error || t("trainingError"));
+    }
+    if (finalStatus.status !== "completed") {
+      throw new Error(t("trainingError"));
+    }
+    return finishAfterTrain();
+  }, [finishAfterTrain, t]);
+
   const bootstrap = useCallback(async () => {
     setLoading(true);
     try {
+      const trainStatus = await apiGet<TrainJobStatus>("/api/train/status");
+      if (trainStatus.status === "running") {
+        setBusy(true);
+        setMsg(formatTrainStep(trainStatus.step || "preparing_data", trainStatus.progress, t));
+        try {
+          await waitForTrain();
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : t("trainingError");
+          setMsg(message);
+        } finally {
+          setBusy(false);
+        }
+        return;
+      }
+
       const e = await apiGet<Eda>("/api/eda");
       setEda(e);
       try {
@@ -97,26 +163,21 @@ export function useMlData() {
     } finally {
       setLoading(false);
     }
-  }, [loadFigures, loadRanking, t]);
+  }, [loadFigures, loadRanking, t, waitForTrain]);
 
   const runTrain = useCallback(async () => {
     setBusy(true);
     setMsg(t("trainingMsg"));
     try {
-      const m = await apiPost<Metrics>("/api/train?n_folds=5&do_tuning=true");
-      setMetrics(m);
-      const e = await apiGet<Eda>("/api/eda");
-      setEda(e);
-      await loadFigures(e, m);
-      await loadRanking(12);
-      setMsg(t("trainingDone", { model: m.best_model }));
+      await apiPost("/api/train?n_folds=5&do_tuning=true");
+      await waitForTrain();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : t("trainingError");
       setMsg(message);
     } finally {
       setBusy(false);
     }
-  }, [loadFigures, loadRanking, t]);
+  }, [t, waitForTrain]);
 
   useEffect(() => {
     void bootstrap();

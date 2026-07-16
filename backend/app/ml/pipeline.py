@@ -6,7 +6,7 @@ import json
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import joblib
 import matplotlib
@@ -175,7 +175,19 @@ def find_best_threshold(
 
 
 def build_models(scale_pos_weight: float) -> dict[str, Any]:
-    m1 = LogisticRegression(max_iter=1000, class_weight="balanced", random_state=RANDOM_STATE)
+    m1 = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            (
+                "clf",
+                LogisticRegression(
+                    max_iter=3000,
+                    class_weight="balanced",
+                    random_state=RANDOM_STATE,
+                ),
+            ),
+        ]
+    )
     m2 = RandomForestClassifier(
         n_estimators=200, class_weight="balanced", random_state=RANDOM_STATE, n_jobs=-1
     )
@@ -214,7 +226,7 @@ def build_models(scale_pos_weight: float) -> dict[str, Any]:
                 ),
             ),
         ],
-        final_estimator=LogisticRegression(max_iter=500, random_state=RANDOM_STATE),
+        final_estimator=LogisticRegression(max_iter=2000, random_state=RANDOM_STATE),
         cv=3,
         n_jobs=1,
     )
@@ -229,7 +241,8 @@ def build_models(scale_pos_weight: float) -> dict[str, Any]:
                             "clf",
                             MLPClassifier(
                                 hidden_layer_sizes=(64, 32),
-                                max_iter=200,
+                                max_iter=500,
+                                early_stopping=True,
                                 random_state=RANDOM_STATE,
                             ),
                         ),
@@ -254,7 +267,7 @@ def build_models(scale_pos_weight: float) -> dict[str, Any]:
                 ),
             ),
         ],
-        final_estimator=LogisticRegression(max_iter=500, random_state=RANDOM_STATE),
+        final_estimator=LogisticRegression(max_iter=2000, random_state=RANDOM_STATE),
         cv=3,
         n_jobs=1,
     )
@@ -456,7 +469,13 @@ def eda_summary() -> dict[str, Any]:
 def run_full_pipeline(
     n_folds: int = 5,
     do_tuning: bool = True,
+    progress: Callable[[str, int], None] | None = None,
 ) -> dict[str, Any]:
+    def _report(step: str, pct: int) -> None:
+        if progress:
+            progress(step, pct)
+
+    _report("preparing_data", 5)
     ensure_dataset()
     df = _ensure_data()
     train_df, test_df, split_meta = temporal_split(df, test_months=1)
@@ -478,8 +497,10 @@ def run_full_pipeline(
     probs: dict[str, np.ndarray] = {}
     fitted: dict[str, Any] = {}
     thresholds: dict[str, float] = {}
+    model_names = list(models.keys())
 
-    for name, model in models.items():
+    for idx, (name, model) in enumerate(models.items()):
+        _report(f"training_model:{name}", 10 + int((idx / len(model_names)) * 45))
         t0 = time.perf_counter()
         model.fit(X_res, y_res)
         elapsed = time.perf_counter() - t0
@@ -514,6 +535,7 @@ def run_full_pipeline(
     best_threshold = thresholds[best_name]
 
     # CV sobre resampled train
+    _report("cross_validation", 62)
     scoring = {
         "f1": "f1",
         "roc_auc": "roc_auc",
@@ -525,8 +547,11 @@ def run_full_pipeline(
     cv = StratifiedKFold(n_splits=n_folds_eff, shuffle=True, random_state=RANDOM_STATE)
     cv_table = {}
     for name, model in build_models(spw).items():
-        # re-instanciar para CV limpio
-        scores = cross_validate(model, X_res, y_res, cv=cv, scoring=scoring, n_jobs=-1)
+        # Stacking ya ejecuta CV interno; limitar paralelismo evita picos de RAM/OOM.
+        cv_jobs = 1 if name.startswith("H") else 2
+        scores = cross_validate(
+            model, X_res, y_res, cv=cv, scoring=scoring, n_jobs=cv_jobs
+        )
         cv_table[name] = {
             "f1_mean": float(scores["test_f1"].mean()),
             "f1_std": float(scores["test_f1"].std()),
@@ -538,11 +563,24 @@ def run_full_pipeline(
 
     tuning = None
     if do_tuning and best_name.startswith("M"):
+        _report("hyperparameter_tuning", 75)
         # tuning ligero solo en modelos base
         search_space = {
             "M1_LogisticRegression": (
-                LogisticRegression(max_iter=1000, class_weight="balanced", random_state=RANDOM_STATE),
-                {"C": [0.1, 0.5, 1.0, 2.0]},
+                Pipeline(
+                    [
+                        ("scaler", StandardScaler()),
+                        (
+                            "clf",
+                            LogisticRegression(
+                                max_iter=3000,
+                                class_weight="balanced",
+                                random_state=RANDOM_STATE,
+                            ),
+                        ),
+                    ]
+                ),
+                {"clf__C": [0.1, 0.5, 1.0, 2.0]},
             ),
             "M2_RandomForest": (
                 RandomForestClassifier(class_weight="balanced", random_state=RANDOM_STATE, n_jobs=-1),
@@ -571,7 +609,7 @@ def run_full_pipeline(
                 cv=3,
                 scoring="average_precision",
                 random_state=RANDOM_STATE,
-                n_jobs=-1,
+                n_jobs=2,
             )
             search.fit(X_res, y_res)
             tuned = search.best_estimator_
@@ -602,6 +640,7 @@ def run_full_pipeline(
                 )
 
     # McNemar: mejor vs cada otro
+    _report("statistical_tests", 85)
     mcnemar = {}
     y_test_arr = y_test.to_numpy() if hasattr(y_test, "to_numpy") else np.asarray(y_test)
     for name in results:
@@ -634,6 +673,7 @@ def run_full_pipeline(
 
     accuracy_cmp = _save_accuracy_comparison(results)
 
+    _report("generating_reports", 92)
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "split": {
@@ -661,6 +701,7 @@ def run_full_pipeline(
     METRICS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     SPLIT_PATH.write_text(json.dumps(payload["split"], indent=2), encoding="utf-8")
     _write_reports(payload, df)
+    _report("done", 100)
     return payload
 
 

@@ -1,8 +1,9 @@
-from pathlib import Path
+import asyncio
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from starlette import status
 
 from app.auth import Token, User, authenticate_user, create_access_token, get_current_user
 from app.config import FIGURES_DIR, REPORTS_DIR
@@ -12,8 +13,8 @@ from app.ml.pipeline import (
     load_metrics,
     predict_fleet,
     regenerate_analysis_figures_from_metrics,
-    run_full_pipeline,
 )
+from app.ml.train_job import get_train_status, start_train_job
 
 router = APIRouter(prefix="/api")
 
@@ -43,14 +44,22 @@ async def get_eda(user: User = Depends(get_current_user)):
     return eda_summary()
 
 
-@router.post("/train")
+@router.post("/train", status_code=status.HTTP_202_ACCEPTED)
 async def train(
     n_folds: int = 5,
     do_tuning: bool = True,
     user: User = Depends(get_current_user),
 ):
     n_folds = max(2, min(n_folds, 5))
-    return run_full_pipeline(n_folds=n_folds, do_tuning=do_tuning)
+    try:
+        return await start_train_job(n_folds=n_folds, do_tuning=do_tuning)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/train/status")
+async def train_status(user: User = Depends(get_current_user)):
+    return get_train_status()
 
 
 @router.get("/metrics")
@@ -78,6 +87,8 @@ async def ranking(top_n: int = 15, user: User = Depends(get_current_user)):
 
 @router.get("/figures/{name}")
 async def figure(name: str, user: User = Depends(get_current_user)):
+    from pathlib import Path
+
     path = FIGURES_DIR / Path(name).name
     if not path.exists():
         raise HTTPException(status_code=404, detail="Figura no encontrada")
@@ -86,6 +97,8 @@ async def figure(name: str, user: User = Depends(get_current_user)):
 
 @router.get("/reports/{name}")
 async def report(name: str, user: User = Depends(get_current_user)):
+    from pathlib import Path
+
     path = REPORTS_DIR / Path(name).name
     if not path.exists():
         raise HTTPException(status_code=404, detail="Reporte no encontrado")

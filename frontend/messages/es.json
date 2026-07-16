@@ -88,7 +88,17 @@
       "download": "Descargar {format}",
       "artifact": "Artefacto del mejor modelo: backend/artifacts/best_model.joblib"
     },
-    "trainingMsg": "Entrenando 5 modelos (puede tomar 1–3 min)…",
+    "trainingMsg": "Iniciando entrenamiento de 5 modelos…",
+    "trainingPolling": "Entrenando… {progress}%",
+    "trainingStepModel": "Entrenando {model}… {progress}%",
+    "trainingStep": {
+      "preparing_data": "Preparando datos… {progress}%",
+      "cross_validation": "Validación cruzada… {progress}%",
+      "hyperparameter_tuning": "Ajuste de hiperparámetros… {progress}%",
+      "statistical_tests": "Pruebas estadísticas (McNemar)… {progress}%",
+      "generating_reports": "Generando reportes… {progress}%",
+      "done": "Finalizando… {progress}%"
+    },
     "trainingDone": "Listo. Mejor modelo: {model}",
     "trainingError": "Falló el entrenamiento",
     "loadError": "Error al cargar",

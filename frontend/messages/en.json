@@ -88,7 +88,17 @@
       "download": "Download {format}",
       "artifact": "Best model artifact: backend/artifacts/best_model.joblib"
     },
-    "trainingMsg": "Training 5 models (may take 1–3 min)…",
+    "trainingMsg": "Starting training for 5 models…",
+    "trainingPolling": "Training… {progress}%",
+    "trainingStepModel": "Training {model}… {progress}%",
+    "trainingStep": {
+      "preparing_data": "Preparing data… {progress}%",
+      "cross_validation": "Cross-validation… {progress}%",
+      "hyperparameter_tuning": "Hyperparameter tuning… {progress}%",
+      "statistical_tests": "Statistical tests (McNemar)… {progress}%",
+      "generating_reports": "Generating reports… {progress}%",
+      "done": "Finishing… {progress}%"
+    },
     "trainingDone": "Done. Best model: {model}",
     "trainingError": "Training failed",
     "loadError": "Failed to load",
