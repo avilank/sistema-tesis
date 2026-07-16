@@ -89,6 +89,7 @@
       "artifact": "Best model artifact: backend/artifacts/best_model.joblib"
     },
     "trainingMsg": "Starting training for 5 models…",
+    "trainingProgressHint": "You can browse the app; training continues in the background.",
     "trainingPolling": "Training… {progress}%",
     "trainingStepModel": "Training {model}… {progress}%",
     "trainingStep": {

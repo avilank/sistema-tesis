@@ -71,6 +71,19 @@ export function useMlData() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [trainProgress, setTrainProgress] = useState<number | null>(null);
+
+  const updateTrainStatus = useCallback(
+    (step: string, progress: number) => {
+      setTrainProgress(progress);
+      setMsg(formatTrainStep(step || "preparing_data", progress, t));
+    },
+    [t],
+  );
+
+  const clearTrainStatus = useCallback(() => {
+    setTrainProgress(null);
+  }, []);
 
   const loadFigures = useCallback(async (e: Eda, m: Metrics) => {
     const heatmap = await loadFigure(e.figuras.heatmap);
@@ -115,7 +128,7 @@ export function useMlData() {
   const waitForTrain = useCallback(async () => {
     const finalStatus = await pollTrainStatus<TrainJobStatus>((status) => {
       if (status.status === "running") {
-        setMsg(formatTrainStep(status.step || "preparing_data", status.progress, t));
+        updateTrainStatus(status.step || "preparing_data", status.progress);
       }
     });
     if (finalStatus.status === "failed") {
@@ -125,7 +138,7 @@ export function useMlData() {
       throw new Error(t("trainingError"));
     }
     return finishAfterTrain();
-  }, [finishAfterTrain, t]);
+  }, [finishAfterTrain, t, updateTrainStatus]);
 
   const bootstrap = useCallback(async () => {
     setLoading(true);
@@ -133,7 +146,7 @@ export function useMlData() {
       const trainStatus = await apiGet<TrainJobStatus>("/api/train/status");
       if (trainStatus.status === "running") {
         setBusy(true);
-        setMsg(formatTrainStep(trainStatus.step || "preparing_data", trainStatus.progress, t));
+        updateTrainStatus(trainStatus.step || "preparing_data", trainStatus.progress);
         try {
           await waitForTrain();
         } catch (err: unknown) {
@@ -141,6 +154,7 @@ export function useMlData() {
           setMsg(message);
         } finally {
           setBusy(false);
+          clearTrainStatus();
         }
         return;
       }
@@ -163,10 +177,11 @@ export function useMlData() {
     } finally {
       setLoading(false);
     }
-  }, [loadFigures, loadRanking, t, waitForTrain]);
+  }, [clearTrainStatus, loadFigures, loadRanking, t, updateTrainStatus, waitForTrain]);
 
   const runTrain = useCallback(async () => {
     setBusy(true);
+    setTrainProgress(0);
     setMsg(t("trainingMsg"));
     try {
       await apiPost("/api/train?n_folds=5&do_tuning=true");
@@ -176,8 +191,9 @@ export function useMlData() {
       setMsg(message);
     } finally {
       setBusy(false);
+      clearTrainStatus();
     }
-  }, [t, waitForTrain]);
+  }, [clearTrainStatus, t, waitForTrain]);
 
   useEffect(() => {
     void bootstrap();
@@ -199,6 +215,7 @@ export function useMlData() {
     loading,
     busy,
     msg,
+    trainProgress,
     setMsg,
     isTrained,
     runTrain,

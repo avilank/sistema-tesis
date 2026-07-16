@@ -89,6 +89,7 @@
       "artifact": "Artefacto del mejor modelo: backend/artifacts/best_model.joblib"
     },
     "trainingMsg": "Iniciando entrenamiento de 5 modelos…",
+    "trainingProgressHint": "Puedes navegar por la app; el entrenamiento continúa en segundo plano.",
     "trainingPolling": "Entrenando… {progress}%",
     "trainingStepModel": "Entrenando {model}… {progress}%",
     "trainingStep": {
