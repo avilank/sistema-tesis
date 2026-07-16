@@ -3,7 +3,7 @@
 import { Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/routing";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { routing } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
 
 export function LocaleSwitcher() {
   const locale = useLocale();
@@ -25,20 +26,16 @@ export function LocaleSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <Button variant="outline" size="sm" className="gap-2" aria-label={t("label")} />
-        }
+        type="button"
+        className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2")}
+        aria-label={t("label")}
       >
         <Languages className="size-4" />
         <span className="uppercase">{locale}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="min-w-36">
         {routing.locales.map((loc) => (
-          <DropdownMenuItem
-            key={loc}
-            onClick={() => switchLocale(loc)}
-            data-active={locale === loc}
-          >
+          <DropdownMenuItem key={loc} onClick={() => switchLocale(loc)}>
             {t(loc)}
           </DropdownMenuItem>
         ))}

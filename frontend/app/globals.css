@@ -92,3 +92,53 @@
       linear-gradient(160deg, oklch(0.12 0.03 250), oklch(0.16 0.03 250));
   }
 }
+
+/* shadcn sidebar — utilidades TW v4 no soportadas en TW v3 */
+@layer components {
+  [data-slot="sidebar-wrapper"] {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  [data-slot="sidebar-gap"] {
+    position: relative;
+    flex-shrink: 0;
+    width: var(--sidebar-width, 16rem);
+    background: transparent;
+    transition: width 200ms ease-linear;
+  }
+
+  .group[data-collapsible="icon"] [data-slot="sidebar-gap"] {
+    width: var(--sidebar-width-icon, 3rem);
+  }
+
+  .group[data-collapsible="offcanvas"] [data-slot="sidebar-gap"] {
+    width: 0;
+  }
+
+  [data-slot="sidebar-container"] {
+    width: var(--sidebar-width, 16rem);
+  }
+
+  .group[data-collapsible="icon"] [data-slot="sidebar-container"] {
+    width: var(--sidebar-width-icon, 3rem);
+  }
+
+  [data-slot="sidebar-inset"] {
+    min-width: 0;
+    flex: 1 1 0%;
+  }
+
+  [data-slot="dropdown-menu-content"] {
+    z-index: 100;
+    min-width: 8rem;
+    background: var(--popover);
+    color: var(--popover-foreground);
+    border: 1px solid var(--border);
+  }
+
+  [data-slot="sidebar-rail"] {
+    pointer-events: auto;
+  }
+}

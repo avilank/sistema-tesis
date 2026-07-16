@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
+import { cn } from "@/lib/utils";
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +20,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
@@ -58,14 +58,19 @@ export function AppSidebar() {
 
                 return (
                   <SidebarMenuItem key={href}>
-                    <SidebarMenuButton
-                      isActive={active}
-                      tooltip={label}
-                      render={<Link href={href} />}
+                    <Link
+                      href={href}
+                      title={label}
+                      className={cn(
+                        "flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-sm transition-colors",
+                        active
+                          ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
                     >
-                      <Icon />
-                      <span>{label}</span>
-                    </SidebarMenuButton>
+                      <Icon className="size-4 shrink-0" />
+                      <span className="truncate group-data-[collapsible=icon]:hidden">{label}</span>
+                    </Link>
                   </SidebarMenuItem>
                 );
               })}
