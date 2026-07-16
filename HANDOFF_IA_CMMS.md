@@ -123,15 +123,34 @@ npm run dev
 
 App: http://localhost:3000
 
-### 4.4 Sembrar predicciones (obligatorio para ver UI)
+### 4.4 Predicciones automáticas (sin `run-batch` manual)
 
-Con sesión logueada (cookie JWT del CMMS):
+Con `AI_PREDICTION_ON_STARTUP=true` (por defecto en `.env`), al levantar **service-mantenimiento**:
+
+1. Espera `AI_PREDICTION_STARTUP_DELAY_MS` (8 s) para que FastAPI `:8000` esté listo.
+2. Si no hay predicciones recientes (últimas `AI_PREDICTION_STARTUP_MAX_AGE_HOURS` h), ejecuta `run-batch` automáticamente.
+3. El cron diario (05:00) vuelve a predecir toda la flota.
+
+Variables útiles:
+
+```env
+AI_PREDICTION_ON_STARTUP=true
+AI_PREDICTION_STARTUP_DELAY_MS=8000
+AI_PREDICTION_STARTUP_MAX_AGE_HOURS=12
+AI_PREDICTION_BATCH_LIMIT=40
+# AI_PREDICTION_FORCE_ON_STARTUP=true   # ignora antigüedad y corre siempre al arrancar
+# AI_PREDICTION_JOB_ENABLED=false       # desactiva solo el cron de las 05:00
+```
+
+**Orden de arranque recomendado:** primero ML (`:8000`), luego Nest (`:4003`), luego `mantenimiento-app`. Tras ~10 s del Nest, el banner en tablero OT debería poblarse solo (login en la app).
+
+Para forzar una corrida manual (opcional):
 
 ```http
 POST /api/v2/ai-predictions/run-batch?limit=40
 ```
 
-Sin esto, el banner suele quedar vacío (no hay filas en `ai_failure_predictions`).
+### 4.5 Sembrar predicciones manualmente (opcional)
 
 ---
 
@@ -142,7 +161,7 @@ Sin esto, el banner suele quedar vacío (no hay filas en `ai_failure_predictions
 - [ ] Migraciones tablas `ai_*` aplicadas
 - [ ] `AI_SERVICE_URL` apunta a `:8000`
 - [ ] Existe `sistema-ia-articulo/backend/artifacts/best_model.joblib`
-- [ ] Los 3 servicios arriba
+- [ ] `AI_PREDICTION_ON_STARTUP=true` en `.env` del CMMS (batch automático al arrancar Nest)
 
 ### 5.2 Health del modelo
 
@@ -215,12 +234,12 @@ Esperado: sugerencias si `failureProb >= AI_SUGGESTION_THRESHOLD`.
 
 ### 5.8 Orden rápido (~15 min)
 
-1. `GET /health` (ML)
-2. `POST /ai-predictions/run-batch?limit=20`
-3. `GET /ai-predictions/risk-alerts`
-4. Tablero OT (banner + badge)
-5. Aceptar 1 sugerencia
-6. Apagar ML → `POST .../asset/:id/predict` → confirma fallback
+1. Levantar ML → `GET /health`
+2. Levantar Nest (esperar ~10 s; batch automático en logs)
+3. Login en mantenimiento-app → tablero OT (banner + badge)
+4. *(Opcional)* `POST /ai-predictions/run-batch?limit=20` para forzar
+5. Aceptar 1 sugerencia en `/dashboard/ai-suggestions`
+6. Apagar ML → reiniciar Nest → confirma fallback heurístico en logs
 
 ---
 
