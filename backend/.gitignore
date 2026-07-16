@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/app.db
+artifacts/*.joblib
+artifacts/metrics.json
+artifacts/figures/
+artifacts/reports/
+data/raw/
+data/processed/

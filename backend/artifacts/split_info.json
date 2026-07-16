@@ -1,0 +1,24 @@
+{
+  "cut": "2026-06-01 00:00:00",
+  "n_train": 107,
+  "n_test": 100,
+  "prevalencia_train_pct": 25.23,
+  "prevalencia_test_pct": 7.0,
+  "months_in_cohort": [
+    "2026-04-01 00:00:00",
+    "2026-05-01 00:00:00",
+    "2026-06-01 00:00:00",
+    "2026-07-01 00:00:00"
+  ],
+  "months_with_positives": [
+    "2026-04-01 00:00:00",
+    "2026-05-01 00:00:00",
+    "2026-06-01 00:00:00"
+  ],
+  "months_sin_positivo_horizonte": [
+    "2026-07-01 00:00:00"
+  ],
+  "mode": "temporal",
+  "test_months": 1,
+  "n_months_total": 4
+}
