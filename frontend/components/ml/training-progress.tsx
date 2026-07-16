@@ -28,7 +28,9 @@ export function TrainingProgress({ label, progress }: TrainingProgressProps) {
           </div>
           <Progress value={progress} max={100} className="w-full">
             <ProgressLabel className="sr-only">{label}</ProgressLabel>
-            <ProgressValue>{Math.round(progress)}%</ProgressValue>
+            <ProgressValue>
+              {(formatted) => formatted ?? `${Math.round(progress)}%`}
+            </ProgressValue>
           </Progress>
         </div>
       </div>
