@@ -1,0 +1,143 @@
+{
+  "common": {
+    "appName": "Predicción de fallas CMMS",
+    "brand": "Yamboly · Demo tesis",
+    "loading": "Cargando…",
+    "logout": "Salir",
+    "comingSoon": "Vista en construcción — el contenido se migrará en la siguiente fase.",
+    "train": "Entrenar modelos",
+    "retrain": "Re-entrenar",
+    "training": "Entrenando…"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "toggle": "Cambiar tema"
+  },
+  "locale": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "Inglés"
+  },
+  "nav": {
+    "section": "Navegación",
+    "dashboard": "Dashboard",
+    "eda": "Exploración (EDA)",
+    "models": "Modelos",
+    "visualizations": "Visualizaciones",
+    "ranking": "Ranking de riesgo",
+    "reports": "Reportes"
+  },
+  "auth": {
+    "title": "Predicción de fallas CMMS",
+    "subtitle": "Accede al laboratorio: EDA, 5 modelos, CV, tuning, McNemar y reportes.",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "submit": "Entrar al dashboard",
+    "validating": "Validando…",
+    "invalidCredentials": "Credenciales inválidas",
+    "demoHint": "Demo: admin / admin123"
+  },
+  "dashboard": {
+    "tagline": "Demo rápida · artículo CMMS",
+    "title": "Laboratorio de predicción de fallas",
+    "sequence": "Secuencia: EDA → Entrenamiento (3+2) → Figuras → Reportes → Ranking",
+    "kpis": {
+      "observations": "Observaciones",
+      "vehicles": "Vehículos",
+      "prevalence": "Prevalencia y=1",
+      "bestModel": "Mejor modelo",
+      "pending": "Pendiente"
+    },
+    "eda": {
+      "title": "1. EDA — Tabla 1 (clases)",
+      "period": "Periodo {start} → {end} · {features} features tabulares",
+      "classHeader": "Clases",
+      "countHeader": "Número de registros"
+    },
+    "models": {
+      "title": "2. Entrenamiento — comparativa",
+      "empty": "Pulsa “Entrenar modelos” para generar métricas y figuras.",
+      "model": "Modelo",
+      "trainSeconds": "s"
+    },
+    "visualizations": {
+      "title": "Análisis visual de modelos",
+      "subtitle": "Comparación de accuracy (todos) y matrices de confusión de los 3 modelos base (M1–M3). Clases: Sin falla / Falla.",
+      "accuracyTitle": "Comparación de Accuracy entre Modelos",
+      "accuracyPending": "Gráfico de accuracy pendiente — entrena o reinicia el backend si ya hay métricas",
+      "confusionTitle": "Matrices de confusión — modelos base",
+      "confusionPending": "Matrices pendientes de entrenamiento",
+      "rocBest": "ROC del mejor modelo ({model})",
+      "rocPending": "ROC pendiente",
+      "cmBest": "Matriz del mejor modelo",
+      "cmPending": "Matriz pendiente"
+    },
+    "ranking": {
+      "title": "Ranking de riesgo (modelo guardado .joblib)",
+      "empty": "Entrena para generar predicciones sin reentrenar.",
+      "plate": "Placa",
+      "prob": "Prob.",
+      "risk": "Riesgo",
+      "correctives": "Corr.90d"
+    },
+    "reports": {
+      "title": "6. Reportes",
+      "subtitle": "PDF, Word y Excel con tablas e interpretación. Se generan al entrenar.",
+      "download": "Descargar {format}",
+      "artifact": "Artefacto del mejor modelo: backend/artifacts/best_model.joblib"
+    },
+    "trainingMsg": "Entrenando 5 modelos (puede tomar 1–3 min)…",
+    "trainingDone": "Listo. Mejor modelo: {model}",
+    "trainingError": "Falló el entrenamiento",
+    "loadError": "Error al cargar",
+    "summary": {
+      "trained": "Modelo entrenado",
+      "pending": "Pendiente de entrenar",
+      "pendingHint": "Ve a Modelos para ejecutar el pipeline de ML.",
+      "bestModelLabel": "Mejor modelo: {model}",
+      "topRisk": "Top 5 mayor riesgo",
+      "viewAll": "Ver ranking completo",
+      "goTrain": "Ir a modelos",
+      "goReports": "Descargar reportes"
+    }
+  },
+  "reports": {
+    "pdfTitle": "Informe de resultados (PDF)",
+    "pdfDesc": "Informe completo con tablas, métricas e interpretación del mejor modelo.",
+    "wordTitle": "Informe editable (Word)",
+    "wordDesc": "Mismo contenido del PDF en formato DOCX para edición.",
+    "excelTitle": "Comparativa de modelos (Excel)",
+    "excelDesc": "Hoja de cálculo con métricas de todos los modelos evaluados.",
+    "requiresTraining": "Los reportes se generan al entrenar. Ve a Modelos primero.",
+    "downloadError": "No se pudo descargar el archivo",
+    "bestModel": "Generado con {model}"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Resumen ejecutivo con los KPIs más relevantes del sistema."
+    },
+    "eda": {
+      "title": "Exploración de datos",
+      "description": "Análisis exploratorio: distribución de clases, periodo y heatmap."
+    },
+    "models": {
+      "title": "Modelos",
+      "description": "Comparativa de modelos, entrenamiento y regla de selección."
+    },
+    "visualizations": {
+      "title": "Visualizaciones",
+      "description": "Gráficos de accuracy, matrices de confusión y curvas ROC."
+    },
+    "ranking": {
+      "title": "Ranking de riesgo",
+      "description": "Vehículos ordenados por probabilidad de falla a 30 días."
+    },
+    "reports": {
+      "title": "Reportes",
+      "description": "Descarga de informes en PDF, Word y Excel."
+    }
+  }
+}

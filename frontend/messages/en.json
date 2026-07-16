@@ -1,0 +1,143 @@
+{
+  "common": {
+    "appName": "CMMS Failure Prediction",
+    "brand": "Yamboly · Thesis demo",
+    "loading": "Loading…",
+    "logout": "Sign out",
+    "comingSoon": "View under construction — content will be migrated in the next phase.",
+    "train": "Train models",
+    "retrain": "Re-train",
+    "training": "Training…"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme"
+  },
+  "locale": {
+    "label": "Language",
+    "es": "Spanish",
+    "en": "English"
+  },
+  "nav": {
+    "section": "Navigation",
+    "dashboard": "Dashboard",
+    "eda": "Exploration (EDA)",
+    "models": "Models",
+    "visualizations": "Visualizations",
+    "ranking": "Risk ranking",
+    "reports": "Reports"
+  },
+  "auth": {
+    "title": "CMMS Failure Prediction",
+    "subtitle": "Access the lab: EDA, 5 models, CV, tuning, McNemar and reports.",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Enter dashboard",
+    "validating": "Validating…",
+    "invalidCredentials": "Invalid credentials",
+    "demoHint": "Demo: admin / admin123"
+  },
+  "dashboard": {
+    "tagline": "Quick demo · CMMS article",
+    "title": "Failure prediction lab",
+    "sequence": "Sequence: EDA → Training (3+2) → Figures → Reports → Ranking",
+    "kpis": {
+      "observations": "Observations",
+      "vehicles": "Vehicles",
+      "prevalence": "Prevalence y=1",
+      "bestModel": "Best model",
+      "pending": "Pending"
+    },
+    "eda": {
+      "title": "1. EDA — Table 1 (classes)",
+      "period": "Period {start} → {end} · {features} tabular features",
+      "classHeader": "Classes",
+      "countHeader": "Record count"
+    },
+    "models": {
+      "title": "2. Training — comparison",
+      "empty": "Click “Train models” to generate metrics and figures.",
+      "model": "Model",
+      "trainSeconds": "s"
+    },
+    "visualizations": {
+      "title": "Visual model analysis",
+      "subtitle": "Accuracy comparison (all) and confusion matrices for the 3 base models (M1–M3). Classes: No failure / Failure.",
+      "accuracyTitle": "Accuracy Comparison Across Models",
+      "accuracyPending": "Accuracy chart pending — train or restart the backend if metrics already exist",
+      "confusionTitle": "Confusion matrices — base models",
+      "confusionPending": "Matrices pending training",
+      "rocBest": "ROC of best model ({model})",
+      "rocPending": "ROC pending",
+      "cmBest": "Best model confusion matrix",
+      "cmPending": "Matrix pending"
+    },
+    "ranking": {
+      "title": "Risk ranking (saved .joblib model)",
+      "empty": "Train to generate predictions without retraining.",
+      "plate": "Plate",
+      "prob": "Prob.",
+      "risk": "Risk",
+      "correctives": "Corr.90d"
+    },
+    "reports": {
+      "title": "6. Reports",
+      "subtitle": "PDF, Word and Excel with tables and interpretation. Generated on training.",
+      "download": "Download {format}",
+      "artifact": "Best model artifact: backend/artifacts/best_model.joblib"
+    },
+    "trainingMsg": "Training 5 models (may take 1–3 min)…",
+    "trainingDone": "Done. Best model: {model}",
+    "trainingError": "Training failed",
+    "loadError": "Failed to load",
+    "summary": {
+      "trained": "Model trained",
+      "pending": "Training pending",
+      "pendingHint": "Go to Models to run the ML pipeline.",
+      "bestModelLabel": "Best model: {model}",
+      "topRisk": "Top 5 highest risk",
+      "viewAll": "View full ranking",
+      "goTrain": "Go to models",
+      "goReports": "Download reports"
+    }
+  },
+  "reports": {
+    "pdfTitle": "Results report (PDF)",
+    "pdfDesc": "Full report with tables, metrics and interpretation of the best model.",
+    "wordTitle": "Editable report (Word)",
+    "wordDesc": "Same PDF content in DOCX format for editing.",
+    "excelTitle": "Model comparison (Excel)",
+    "excelDesc": "Spreadsheet with metrics for all evaluated models.",
+    "requiresTraining": "Reports are generated on training. Go to Models first.",
+    "downloadError": "Could not download the file",
+    "bestModel": "Generated with {model}"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Executive summary with the most relevant system KPIs."
+    },
+    "eda": {
+      "title": "Data exploration",
+      "description": "Exploratory analysis: class distribution, period and heatmap."
+    },
+    "models": {
+      "title": "Models",
+      "description": "Model comparison, training and selection rule."
+    },
+    "visualizations": {
+      "title": "Visualizations",
+      "description": "Accuracy charts, confusion matrices and ROC curves."
+    },
+    "ranking": {
+      "title": "Risk ranking",
+      "description": "Vehicles ranked by 30-day failure probability."
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Download reports in PDF, Word and Excel."
+    }
+  }
+}
